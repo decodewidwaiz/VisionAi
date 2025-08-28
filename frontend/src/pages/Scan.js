@@ -1,8 +1,25 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import styled from 'styled-components';
-import { FaCamera, FaInfoCircle } from 'react-icons/fa';
-import FloatingCurrency from '../components/FloatingCurrency';
+import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import styled from "styled-components";
+import { FaCamera, FaInfoCircle } from "react-icons/fa";
+import FloatingCurrency from "../components/FloatingCurrency";
+import axios from "axios";
+
+const API_BASE_URL = "http://127.0.0.1:5000";
+
+// Utility function to convert file to base64
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      // Remove the data URL prefix to get just the base64 string
+      const base64String = reader.result.split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 const ScanContainer = styled.div`
   min-height: 100vh;
@@ -62,7 +79,7 @@ const InstructionIcon = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  
+
   svg {
     font-size: 1.2rem;
     color: white;
@@ -87,9 +104,9 @@ const InstructionItem = styled.li`
   margin-bottom: 1rem;
   font-size: 1.1rem;
   line-height: 1.6;
-  
+
   &:before {
-    content: '•';
+    content: "•";
     color: #00c6ff;
     font-size: 1.5rem;
   }
@@ -104,9 +121,9 @@ const ScanFrame = styled(motion.div)`
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  
+
   &:before {
-    content: '';
+    content: "";
     position: absolute;
     top: -50%;
     left: -50%;
@@ -123,7 +140,7 @@ const ScanFrame = styled(motion.div)`
     transform: rotate(45deg);
     animation: scanShine 5s infinite linear;
   }
-  
+
   @keyframes scanShine {
     0% {
       transform: translateX(-100%) translateY(-100%) rotate(45deg);
@@ -141,28 +158,28 @@ const ScanCorner = styled.div`
   border-color: #00c6ff;
   border-style: solid;
   border-width: 0;
-  
+
   &.top-left {
     top: 20px;
     left: 20px;
     border-top-width: 3px;
     border-left-width: 3px;
   }
-  
+
   &.top-right {
     top: 20px;
     right: 20px;
     border-top-width: 3px;
     border-right-width: 3px;
   }
-  
+
   &.bottom-left {
     bottom: 20px;
     left: 20px;
     border-bottom-width: 3px;
     border-left-width: 3px;
   }
-  
+
   &.bottom-right {
     bottom: 20px;
     right: 20px;
@@ -214,7 +231,7 @@ const ScanButton = styled(motion.button)`
   z-index: 1;
 
   &:before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -229,12 +246,12 @@ const ScanButton = styled(motion.button)`
   &:hover {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 15px 30px rgba(0, 114, 255, 0.6);
-    
+
     &:before {
       opacity: 1;
     }
   }
-  
+
   svg {
     font-size: 1.5rem;
   }
@@ -249,21 +266,54 @@ const ScanText = styled.p`
 
 const Scan = () => {
   const [isScanning, setIsScanning] = useState(false);
-  
-  const handleScan = () => {
-    setIsScanning(true);
-    
-    // Simulate scanning process (frontend only)
-    setTimeout(() => {
-      setIsScanning(false);
-    }, 3000);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const detectCurrency = async (base64Image) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/detect`, {
+        image: base64Image,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`API call failed: ${error.message}`);
+    }
   };
-  
+
+  const handleScan = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file");
+      return;
+    }
+
+    try {
+      setIsScanning(true);
+      setError(null);
+      setResult(null);
+
+      const base64Image = await fileToBase64(file);
+      const response = await detectCurrency(base64Image);
+      setResult(response);
+    } catch (error) {
+      setError(error.message || "Failed to detect currency");
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   return (
     <ScanContainer>
       {/* Floating currency background elements with minimal density for better focus */}
       <FloatingCurrency count={7} />
-      
+
       <Title
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -271,7 +321,7 @@ const Scan = () => {
       >
         Scan Currency
       </Title>
-      
+
       <ScanWrapper>
         <InstructionsCard
           initial={{ opacity: 0, y: 30 }}
@@ -284,7 +334,7 @@ const Scan = () => {
             </InstructionIcon>
             <InstructionTitle>How to Scan</InstructionTitle>
           </InstructionHeader>
-          
+
           <InstructionsList>
             <InstructionItem>
               Place the currency note on a flat, well-lit surface.
@@ -303,7 +353,7 @@ const Scan = () => {
             </InstructionItem>
           </InstructionsList>
         </InstructionsCard>
-        
+
         <ScanFrame
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -313,35 +363,48 @@ const Scan = () => {
           <ScanCorner className="top-right" />
           <ScanCorner className="bottom-left" />
           <ScanCorner className="bottom-right" />
-          
+
           {isScanning && (
             <ScanningAnimation
               initial={{ top: 0 }}
-              animate={{ top: '100%' }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity, 
-                repeatType: 'loop' 
+              animate={{ top: "100%" }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "loop",
               }}
             />
           )}
-          
+
           <ScanOverlay>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+            />
             <ScanText>
-              {isScanning ? 'Scanning...' : 'Ready to scan currency'}
+              {isScanning ? "Scanning..." : "Ready to scan currency"}
             </ScanText>
-            
+
             <ScanButton
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleScan}
               disabled={isScanning}
             >
-              <FaCamera /> {isScanning ? 'Scanning...' : 'Start Scan'}
+              <FaCamera /> {isScanning ? "Scanning..." : "Start Scan"}
             </ScanButton>
           </ScanOverlay>
         </ScanFrame>
       </ScanWrapper>
+      {result && (
+        <div>
+          Detected: {result.currency} {result.denomination}
+        </div>
+      )}
+      {error && <div style={{ color: "#ff6b6b" }}>{error}</div>}
     </ScanContainer>
   );
 };
