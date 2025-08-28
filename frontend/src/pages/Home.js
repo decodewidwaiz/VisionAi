@@ -123,7 +123,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          Welcome to Currency Detection.
+          Welcome to VisionAi.
         </Title>
         <Subtitle
           initial={{ opacity: 0, y: -20 }}
@@ -141,7 +141,7 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            Scan Currency <FaArrowRight />
+            Get started <FaArrowRight />
           </ScanButton>
         </Link>
         
