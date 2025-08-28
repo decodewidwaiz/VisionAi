@@ -1,0 +1,9 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+Flask-PyMongo==2.3.0
+pymongo==4.5.0
+python-dotenv==1.0.0
+requests==2.31.0
+ultralytics==8.0.196
+opencv-python==4.8.1.78
+Pillow==10.0
