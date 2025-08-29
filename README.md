@@ -35,8 +35,8 @@ Built with **YOLOv8, deep learning, and assistive technologies**, it ensures **f
 
 - **Frontend:** React, TailwindCSS, Vite, HTML, CSS, JS  
 - **Backend:** Node.js, Express.js, Flask  
-- **Image Analysis:** PyTorch, TensorFlow, Ultralytics YOLO  
-- **Database:** Firebase  
+- **Image Analysis:**  Ultralytics YOLO  
+- **Database:** Firebase (optional) 
 
 ---
 
