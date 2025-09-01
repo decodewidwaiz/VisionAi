@@ -4,9 +4,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaArrowRight } from 'react-icons/fa';
 import FloatingCurrency from '../components/FloatingCurrency';
-import { useTranslation } from 'react-i18next';
 
-// ---------------- Styled Components ----------------
 const HomeContainer = styled.div`
   min-height: 100vh;
   display: flex;
@@ -113,13 +111,10 @@ const FeatureDescription = styled.p`
   line-height: 1.6;
 `;
 
-// ---------------- Component ----------------
 const Home = () => {
-  const { t } = useTranslation();
-
   return (
     <HomeContainer>
-      {/* Floating background animation */}
+      {/* Floating currency background elements with more elements and varied sizes */}
       <FloatingCurrency count={20} />
       
       <ContentWrapper>
@@ -128,15 +123,14 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {t("home.title")}
+          Welcome to VisionAi.
         </Title>
-
         <Subtitle
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {t("home.subtitle")}
+          Empowering the visually impaired to identify currency notes with ease and confidence.
         </Subtitle>
         
         <Link to="/scan" style={{ textDecoration: 'none' }}>
@@ -147,7 +141,7 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            {t("home.getStarted")} <FaArrowRight />
+            Get started <FaArrowRight />
           </ScanButton>
         </Link>
         
@@ -158,9 +152,9 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
             >
-              <FeatureTitle>{t("home.features.instantTitle")}</FeatureTitle>
+              <FeatureTitle>Instant Recognition</FeatureTitle>
               <FeatureDescription>
-                {t("home.features.instantDesc")}
+                Our advanced AI technology quickly identifies currency notes with high accuracy.
               </FeatureDescription>
             </FeatureCard>
             
@@ -169,9 +163,9 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
-              <FeatureTitle>{t("home.features.voiceTitle")}</FeatureTitle>
+              <FeatureTitle>Voice Assistance</FeatureTitle>
               <FeatureDescription>
-                {t("home.features.voiceDesc")}
+                Clear audio feedback in multiple languages including Hindi to announce the detected currency.
               </FeatureDescription>
             </FeatureCard>
           </TopFeaturesRow>
@@ -182,9 +176,9 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.0 }}
             >
-              <FeatureTitle>{t("home.features.historyTitle")}</FeatureTitle>
+              <FeatureTitle>Scan History</FeatureTitle>
               <FeatureDescription>
-                {t("home.features.historyDesc")}
+                Keep track of all your previous currency scans with detailed information and timestamps.
               </FeatureDescription>
             </FeatureCard>
           </CenteredFeature>

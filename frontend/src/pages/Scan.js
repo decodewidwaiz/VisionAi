@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { FaCamera, FaInfoCircle, FaStop } from "react-icons/fa";
 import FloatingCurrency from "../components/FloatingCurrency";
 import axios from "axios";
-import { useTranslation } from 'react-i18next';
 
 const API_BASE_URL = "http://127.0.0.1:5000";
 
@@ -381,12 +380,8 @@ const Scan = () => {
   const [webcamError, setWebcamError] = useState(null);
   const [captureMode, setCaptureMode] = useState('upload'); // 'upload' or 'webcam'
   const fileInputRef = useRef(null);
- feature/multilingual
-  const { t } = useTranslation();
-=======
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  main
 
   const detectCurrency = async (base64Image) => {
     try {
@@ -408,7 +403,7 @@ const Scan = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError(t('scanPage.selectImage'));
+      setError("Please select a valid image file");
       return;
     }
 
@@ -421,7 +416,7 @@ const Scan = () => {
       const response = await detectCurrency(base64Image);
       setResult(response);
     } catch (error) {
-      setError(error.message || t('scanPage.failedDetect'));
+      setError(error.message || "Failed to detect currency");
     } finally {
       setIsScanning(false);
     }
@@ -516,7 +511,7 @@ const Scan = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {t('scanPage.title')}
+        Scan Currency
       </Title>
 
       <ScanWrapper>
@@ -529,17 +524,11 @@ const Scan = () => {
             <InstructionIcon>
               <FaInfoCircle />
             </InstructionIcon>
-            <InstructionTitle>{t('scanPage.instructions.title')}</InstructionTitle>
+            <InstructionTitle>How to Scan</InstructionTitle>
           </InstructionHeader>
 
           <InstructionsList>
             <InstructionItem>
- feature/multilingual
-              {t('scanPage.instructions.step1')}
-            </InstructionItem>
-            <InstructionItem>
-              {t('scanPage.instructions.step2')}
-
               Choose between uploading an image or using your camera.
             </InstructionItem>
             <InstructionItem>
@@ -550,20 +539,15 @@ const Scan = () => {
             </InstructionItem>
             <InstructionItem>
               Hold your device steady about 15-20 cm above the note.
-               main
             </InstructionItem>
             <InstructionItem>
-              {t('scanPage.instructions.step3')}
+              Make sure the entire note is visible within the frame.
             </InstructionItem>
             <InstructionItem>
-feature/multilingual
-              {t('scanPage.instructions.step4')}
-
               Press the capture button and wait for the result.
- main
             </InstructionItem>
             <InstructionItem>
-              {t('scanPage.instructions.step5')}
+              The app will announce the detected currency denomination.
             </InstructionItem>
           </InstructionsList>
         </InstructionsCard>
@@ -613,19 +597,7 @@ feature/multilingual
             />
           )}
 
- feature/multilingual
-          <ScanOverlay>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              style={{ display: "none" }}
-            />
-            <ScanText>
-              {isScanning ? t('scanPage.scanning') : t('scanPage.ready')}
-            </ScanText>
-  {captureMode === 'webcam' && isWebcamActive ? (
+          {captureMode === 'webcam' && isWebcamActive ? (
             <WebcamContainer>
               <WebcamVideo
                 ref={videoRef}
@@ -663,7 +635,6 @@ feature/multilingual
             </ScanOverlay>
           )}
         </ScanFrame>
- main
 
         {/* Webcam controls */}
         {captureMode === 'webcam' && isWebcamActive && (
@@ -681,21 +652,14 @@ feature/multilingual
               whileTap={{ scale: 0.95 }}
               onClick={stopWebcam}
             >
- feature/multilingual
-              <FaCamera /> {isScanning ? t('scanPage.scanning') : t('scanPage.startScan')}
-            </ScanButton>
-          </ScanOverlay>
-        </ScanFrame>
-
               <FaStop /> Stop Camera
             </StopButton>
           </WebcamControls>
         )}
- main
       </ScanWrapper>
       {result && (
         <div>
-          {t('scanPage.detected', { currency: result.currency, denomination: result.denomination })}
+          Detected: {result.currency} {result.denomination}
         </div>
       )}
       {error && <div style={{ color: "#ff6b6b" }}>{error}</div>}
