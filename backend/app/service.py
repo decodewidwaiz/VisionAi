@@ -1,7 +1,12 @@
 import cv2
 import numpy as np
 from PIL import Image
-from ultralytics import YOLO
+try:
+    from ultralytics import YOLO
+    YOLO_AVAILABLE = True
+except ImportError:
+    YOLO_AVAILABLE = False
+    print("⚠️ YOLO not available - running in simulation mode only")
 import os
 import random
 
@@ -12,6 +17,11 @@ class CurrencyDetector:
     
     def load_model(self):
         """Load YOLO model or use simulation"""
+        if not YOLO_AVAILABLE:
+            print("⚠️ YOLO not available - using simulation mode")
+            self.model = None
+            return
+            
         model_path = "models/best.pt"
         
         if os.path.exists(model_path):
@@ -25,7 +35,7 @@ class CurrencyDetector:
             print("⚠️ Model not found - using simulation mode")
             self.model = None
     
-    def detect(self, image_data, confidence=0.5):
+    def detect(self, image_data, confidence=0.4):
         """Detect currency from base64 image"""
         try:
             # Convert base64 to PIL image

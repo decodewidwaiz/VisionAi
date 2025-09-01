@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaHome, FaHistory, FaCog, FaBars } from 'react-icons/fa';
+import { FaHome, FaHistory, FaCog, FaBars, FaEye, FaCamera } from 'react-icons/fa';
 
 const NavContainer = styled.nav`
   position: fixed;
@@ -249,6 +249,38 @@ const Navbar = () => {
           </NavLink>
         </Link>
         
+        <Link to="/scan" style={{ textDecoration: 'none' }}>
+          <NavLink active={activeTab === '/scan'}>
+            <NavIcon>
+              <FaCamera />
+            </NavIcon>
+            <NavText>Scan</NavText>
+            {activeTab === '/scan' && (
+              <ActiveIndicator 
+                layoutId="activeTab"
+                initial={false}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            )}
+          </NavLink>
+        </Link>
+        
+        <Link to="/object-detection" style={{ textDecoration: 'none' }}>
+          <NavLink active={activeTab === '/object-detection'}>
+            <NavIcon>
+              <FaEye />
+            </NavIcon>
+            <NavText>Objects</NavText>
+            {activeTab === '/object-detection' && (
+              <ActiveIndicator 
+                layoutId="activeTab"
+                initial={false}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            )}
+          </NavLink>
+        </Link>
+        
         <Link to="/history" style={{ textDecoration: 'none' }}>
           <NavLink active={activeTab === '/history'}>
             <NavIcon>
@@ -334,11 +366,39 @@ const Navbar = () => {
                 </MobileNavItem>
               </Link>
               
+              <Link to="/scan" style={{ textDecoration: 'none' }}>
+                <MobileNavItem 
+                  active={activeTab === '/scan'}
+                  variants={itemVariants}
+                  custom={1}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <MobileNavIcon>
+                    <FaCamera />
+                  </MobileNavIcon>
+                  <MobileNavText>Scan</MobileNavText>
+                </MobileNavItem>
+              </Link>
+              
+              <Link to="/object-detection" style={{ textDecoration: 'none' }}>
+                <MobileNavItem 
+                  active={activeTab === '/object-detection'}
+                  variants={itemVariants}
+                  custom={2}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <MobileNavIcon>
+                    <FaEye />
+                  </MobileNavIcon>
+                  <MobileNavText>Object Detection</MobileNavText>
+                </MobileNavItem>
+              </Link>
+              
               <Link to="/history" style={{ textDecoration: 'none' }}>
                 <MobileNavItem 
                   active={activeTab === '/history'}
                   variants={itemVariants}
-                  custom={1}
+                  custom={3}
                   whileTap={{ scale: 0.95 }}
                 >
                   <MobileNavIcon>
@@ -352,7 +412,7 @@ const Navbar = () => {
                 <MobileNavItem 
                   active={activeTab === '/settings'}
                   variants={itemVariants}
-                  custom={2}
+                  custom={4}
                   whileTap={{ scale: 0.95 }}
                 >
                   <MobileNavIcon>
