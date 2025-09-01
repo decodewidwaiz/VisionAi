@@ -2,4 +2,4 @@ import os
 
 class Config:
     MODEL_PATH = "models/best.pt"
-    CONFIDENCE_THRESHOLD = 0.5  # Higher confidence for real-time detection
+    CONFIDENCE_THRESHOLD = 0.4  # Higher confidence for real-time detection
