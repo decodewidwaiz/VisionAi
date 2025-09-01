@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import { FaCamera, FaInfoCircle } from "react-icons/fa";
+import { FaCamera, FaInfoCircle, FaStop } from "react-icons/fa";
 import FloatingCurrency from "../components/FloatingCurrency";
 import axios from "axios";
 import { useTranslation } from 'react-i18next';
@@ -265,12 +265,128 @@ const ScanText = styled.p`
   color: rgba(255, 255, 255, 0.9);
 `;
 
+const ModeToggle = styled.div`
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 5px;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+`;
+
+const ModeButton = styled(motion.button)`
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: ${props => props.active ? 
+    'linear-gradient(to right, #00c6ff, #0072ff)' : 
+    'transparent'};
+  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.7)'};
+  
+  &:hover {
+    color: white;
+    background: ${props => props.active ? 
+      'linear-gradient(to right, #00c6ff, #0072ff)' : 
+      'rgba(255, 255, 255, 0.1)'};
+  }
+`;
+
+const WebcamContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+`;
+
+const WebcamVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const WebcamControls = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+`;
+
+const CaptureButton = styled(motion.button)`
+  background: linear-gradient(to right, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.5);
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 15px 30px rgba(255, 107, 107, 0.6);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  svg {
+    font-size: 2rem;
+  }
+`;
+
+const StopButton = styled(motion.button)`
+  background: linear-gradient(to right, #6c757d, #495057);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 10px 25px rgba(108, 117, 125, 0.5);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(108, 117, 125, 0.6);
+  }
+  
+  svg {
+    font-size: 1rem;
+  }
+`;
+
 const Scan = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [isWebcamActive, setIsWebcamActive] = useState(false);
+  const [stream, setStream] = useState(null);
+  const [webcamError, setWebcamError] = useState(null);
+  const [captureMode, setCaptureMode] = useState('upload'); // 'upload' or 'webcam'
   const fileInputRef = useRef(null);
+ feature/multilingual
   const { t } = useTranslation();
+=======
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  main
 
   const detectCurrency = async (base64Image) => {
     try {
@@ -311,6 +427,85 @@ const Scan = () => {
     }
   };
 
+  // Function to start webcam
+  const startWebcam = async () => {
+    try {
+      setWebcamError(null);
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'environment' // Use back camera on mobile
+        }
+      });
+      
+      setStream(mediaStream);
+      setIsWebcamActive(true);
+      setCaptureMode('webcam');
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (error) {
+      setWebcamError('Unable to access camera. Please check permissions.');
+      console.error('Error accessing webcam:', error);
+    }
+  };
+
+  // Function to stop webcam
+  const stopWebcam = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsWebcamActive(false);
+    setCaptureMode('upload');
+    setWebcamError(null);
+  };
+
+  // Function to capture image from webcam
+  const captureImage = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    try {
+      setIsScanning(true);
+      setError(null);
+      setResult(null);
+      
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      
+      // Set canvas dimensions to match video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      // Draw current video frame to canvas
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // Convert canvas to base64
+      const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+      
+      // Send to detection API
+      const response = await detectCurrency(base64Image);
+      setResult(response);
+      
+    } catch (error) {
+      setError(error.message || "Failed to capture and detect currency");
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Cleanup webcam on component unmount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
   return (
     <ScanContainer>
       {/* Floating currency background elements with minimal density for better focus */}
@@ -339,22 +534,62 @@ const Scan = () => {
 
           <InstructionsList>
             <InstructionItem>
+ feature/multilingual
               {t('scanPage.instructions.step1')}
             </InstructionItem>
             <InstructionItem>
               {t('scanPage.instructions.step2')}
+
+              Choose between uploading an image or using your camera.
+            </InstructionItem>
+            <InstructionItem>
+              For camera mode: Allow camera permissions when prompted.
+            </InstructionItem>
+            <InstructionItem>
+              Place the currency note on a flat, well-lit surface.
+            </InstructionItem>
+            <InstructionItem>
+              Hold your device steady about 15-20 cm above the note.
+               main
             </InstructionItem>
             <InstructionItem>
               {t('scanPage.instructions.step3')}
             </InstructionItem>
             <InstructionItem>
+feature/multilingual
               {t('scanPage.instructions.step4')}
+
+              Press the capture button and wait for the result.
+ main
             </InstructionItem>
             <InstructionItem>
               {t('scanPage.instructions.step5')}
             </InstructionItem>
           </InstructionsList>
         </InstructionsCard>
+
+        {/* Mode Toggle */}
+        <ModeToggle>
+          <ModeButton
+            active={captureMode === 'upload'}
+            onClick={() => {
+              setCaptureMode('upload');
+              stopWebcam();
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Upload Image
+          </ModeButton>
+          <ModeButton
+            active={captureMode === 'webcam'}
+            onClick={startWebcam}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Use Camera
+          </ModeButton>
+        </ModeToggle>
 
         <ScanFrame
           initial={{ opacity: 0, scale: 0.9 }}
@@ -378,6 +613,7 @@ const Scan = () => {
             />
           )}
 
+ feature/multilingual
           <ScanOverlay>
             <input
               ref={fileInputRef}
@@ -389,17 +625,73 @@ const Scan = () => {
             <ScanText>
               {isScanning ? t('scanPage.scanning') : t('scanPage.ready')}
             </ScanText>
+  {captureMode === 'webcam' && isWebcamActive ? (
+            <WebcamContainer>
+              <WebcamVideo
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+              />
+              <canvas
+                ref={canvasRef}
+                style={{ display: 'none' }}
+              />
+            </WebcamContainer>
+          ) : (
+            <ScanOverlay>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment" // This enables camera on mobile
+                onChange={handleFileSelect}
+                style={{ display: "none" }}
+              />
+              <ScanText>
+                {isScanning ? "Scanning..." : "Ready to scan currency"}
+              </ScanText>
 
-            <ScanButton
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleScan}
+              <ScanButton
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleScan}
+                disabled={isScanning}
+              >
+                <FaCamera /> {isScanning ? "Scanning..." : "Start Scan"}
+              </ScanButton>
+            </ScanOverlay>
+          )}
+        </ScanFrame>
+ main
+
+        {/* Webcam controls */}
+        {captureMode === 'webcam' && isWebcamActive && (
+          <WebcamControls>
+            <CaptureButton
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={captureImage}
               disabled={isScanning}
             >
+              <FaCamera />
+            </CaptureButton>
+            <StopButton
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={stopWebcam}
+            >
+ feature/multilingual
               <FaCamera /> {isScanning ? t('scanPage.scanning') : t('scanPage.startScan')}
             </ScanButton>
           </ScanOverlay>
         </ScanFrame>
+
+              <FaStop /> Stop Camera
+            </StopButton>
+          </WebcamControls>
+        )}
+ main
       </ScanWrapper>
       {result && (
         <div>
@@ -407,6 +699,11 @@ const Scan = () => {
         </div>
       )}
       {error && <div style={{ color: "#ff6b6b" }}>{error}</div>}
+      {webcamError && (
+        <div style={{ color: "#ff6b6b", marginTop: "1rem", textAlign: "center" }}>
+          {webcamError}
+        </div>
+      )}
     </ScanContainer>
   );
 };

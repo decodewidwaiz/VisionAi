@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import History from './pages/History';
 import Settings from './pages/Settings';
 import Scan from './pages/Scan';
+import ObjectDetection from './pages/ObjectDetection';
 import Navbar from './components/Navbar';
 import CustomCursor from './components/CustomCursor';
 import CursorTrail from './components/CursorTrail';
@@ -54,6 +55,7 @@ const router = createBrowserRouter(
       <Route path="history" element={<History />} />
       <Route path="settings" element={<Settings />} />
       <Route path="scan" element={<Scan />} />
+      <Route path="object-detection" element={<ObjectDetection />} />
     </Route>
   )
 );
