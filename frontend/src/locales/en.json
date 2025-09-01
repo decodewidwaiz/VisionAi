@@ -1,0 +1,120 @@
+{
+  "common": {
+    "appName": "VisionAI",
+    "language": "Language",
+    "english": "English",
+    "hindi": "Hindi",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next"
+  },
+  "nav": {
+    "home": "Home",
+    "scan": "Scan",
+    "history": "History",
+    "settings": "Settings",
+    "about": "About"
+  },
+  "home": {
+    "title": "Welcome to VisionAI",
+    "subtitle": "Your smart assistant for scanning and understanding currency",
+    "getStarted": "Get Started",
+    "features": {
+      "instantTitle": "Instant Currency Scan",
+      "instantDesc": "Quickly detect and recognize currency in real time.",
+      "voiceTitle": "Voice Assistance",
+      "voiceDesc": "Get voice guidance for every scan result.",
+      "historyTitle": "History Tracking",
+      "historyDesc": "Review your past scans anytime in the history section."
+    }
+  },
+  "scan": {
+    "title": "Scan Currency",
+    "start": "Start Scan",
+    "stop": "Stop Scan",
+    "cameraPermission": "Please allow camera access to start scanning.",
+    "result": "Detected: {{value}}",
+    "counterfeit": "Possible counterfeit detected",
+    "tryAgain": "Try Again"
+  },
+  "history": {
+    "title": "Scan History",
+    "empty": "No scans yet.",
+    "item": "{{date}} — {{result}}",
+    "clear": "Clear History",
+    "cleared": "History cleared"
+  },
+  "settings": {
+    "title": "Settings",
+    "languageLabel": "App Language",
+    "ttsLabel": "Voice Guidance",
+    "ttsOn": "On",
+    "ttsOff": "Off"
+  },
+  "errors": {
+    "generic": "Something went wrong.",
+    "network": "Network error. Please try again.",
+    "camera": "Unable to access camera.",
+    "unsupported": "This feature is not supported on your device."
+  },
+  "a11y": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "appLogo": "VisionAI logo",
+    "startScan": "Start currency scan"
+  },
+  "toasts": {
+    "saved": "Settings saved",
+    "copied": "Copied to clipboard"
+  },
+  "voice": {
+    "speakingResult": "Detected {{value}}",
+    "speakingCounterfeit": "Possible counterfeit detected"
+  },
+  "meta": {
+    "homeTitle": "Home — VisionAI",
+    "scanTitle": "Scan — VisionAI",
+    "historyTitle": "History — VisionAI",
+    "settingsTitle": "Settings — VisionAI"
+  },
+  "scanPage": {
+    "title": "Scan Currency",
+    "instructions": {
+      "title": "How to Scan",
+      "step1": "Place the currency note on a flat, well-lit surface.",
+      "step2": "Hold your phone steady about 15-20 cm above the note.",
+      "step3": "Make sure the entire note is visible within the frame.",
+      "step4": "Press the scan button and wait for the result.",
+      "step5": "The app will announce the detected currency denomination."
+    },
+    "scanning": "Scanning...",
+    "ready": "Ready to scan currency",
+    "startScan": "Start Scan",
+    "detected": "Detected: {{currency}} {{denomination}}",
+    "selectImage": "Please select a valid image file",
+    "failedDetect": "Failed to detect currency"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "voiceAssistant": {
+      "title": "Voice Assistant",
+      "enable": "Enable Voice Assistant"
+    },
+    "volume": {
+      "title": "Volume"
+    },
+    "language": {
+      "title": "Language",
+      "selectVoice": "Select Voice Assistant Language",
+      "english": "English",
+      "hindi": "Hindi",
+      "bengali": "Bengali",
+      "tamil": "Tamil",
+      "telugu": "Telugu",
+      "marathi": "Marathi"
+    }
+  }
+  
+}

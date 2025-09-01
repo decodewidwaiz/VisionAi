@@ -1,3 +1,5 @@
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next'; // Importing i18n hook    
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -158,6 +160,8 @@ const Navbar = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('/');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useTranslation();
+
   
   useEffect(() => {
     setActiveTab(location.pathname);
@@ -238,7 +242,7 @@ const Navbar = () => {
             <NavIcon>
               <FaHome />
             </NavIcon>
-            <NavText>Home</NavText>
+            <NavText>{t('nav.home')}</NavText>
             {activeTab === '/' && (
               <ActiveIndicator 
                 layoutId="activeTab"
@@ -254,7 +258,7 @@ const Navbar = () => {
             <NavIcon>
               <FaHistory />
             </NavIcon>
-            <NavText>History</NavText>
+           <NavText>{t('nav.history')}</NavText>
             {activeTab === '/history' && (
               <ActiveIndicator 
                 layoutId="activeTab"
@@ -270,7 +274,7 @@ const Navbar = () => {
             <NavIcon>
               <FaCog />
             </NavIcon>
-            <NavText>Settings</NavText>
+            <NavText>{t('nav.settings')}</NavText>
             {activeTab === '/settings' && (
               <ActiveIndicator 
                 layoutId="activeTab"
@@ -280,6 +284,7 @@ const Navbar = () => {
             )}
           </NavLink>
         </Link>
+          <LanguageSwitcher />
       </NavLinks>
       
       {/* Hamburger Button */}
@@ -330,7 +335,7 @@ const Navbar = () => {
                   <MobileNavIcon>
                     <FaHome />
                   </MobileNavIcon>
-                  <MobileNavText>Home</MobileNavText>
+                  <MobileNavText>{t('nav.home')}</MobileNavText>
                 </MobileNavItem>
               </Link>
               
@@ -344,7 +349,7 @@ const Navbar = () => {
                   <MobileNavIcon>
                     <FaHistory />
                   </MobileNavIcon>
-                  <MobileNavText>History</MobileNavText>
+                  <MobileNavText>{t('nav.history')}</MobileNavText>
                 </MobileNavItem>
               </Link>
               
@@ -358,9 +363,10 @@ const Navbar = () => {
                   <MobileNavIcon>
                     <FaCog />
                   </MobileNavIcon>
-                  <MobileNavText>Settings</MobileNavText>
+                  <MobileNavText>{t('nav.settings')}</MobileNavText>
                 </MobileNavItem>
               </Link>
+              <LanguageSwitcher />
             </MobileMenu>
           </>
         )}

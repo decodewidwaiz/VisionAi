@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { FaVolumeUp, FaLanguage, FaMicrophone } from 'react-icons/fa';
 import FloatingCurrency from '../components/FloatingCurrency';
+import { useTranslation } from 'react-i18next';
 
 const SettingsContainer = styled.div`
   min-height: 100vh;
@@ -200,8 +201,16 @@ const Settings = () => {
   const [voiceAssistant, setVoiceAssistant] = useState(true);
   const [volume, setVolume] = useState(75);
   const [selectedLanguage, setSelectedLanguage] = useState('Hindi');
+  const { t } = useTranslation();
   
-  const languages = ['English', 'Hindi', 'Bengali', 'Tamil', 'Telugu', 'Marathi'];
+  const languages = [
+    { key: 'english', label: t('settingsPage.language.english') },
+    { key: 'hindi', label: t('settingsPage.language.hindi') },
+    { key: 'bengali', label: t('settingsPage.language.bengali') },
+    { key: 'tamil', label: t('settingsPage.language.tamil') },
+    { key: 'telugu', label: t('settingsPage.language.telugu') },
+    { key: 'marathi', label: t('settingsPage.language.marathi') }
+  ];
   
   return (
     <SettingsContainer>
@@ -213,7 +222,7 @@ const Settings = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        Settings
+        {t('settingsPage.title')}
       </Title>
       
       <SettingsWrapper>
@@ -226,11 +235,11 @@ const Settings = () => {
             <SettingIcon>
               <FaMicrophone />
             </SettingIcon>
-            <SettingTitle>Voice Assistant</SettingTitle>
+            <SettingTitle>{t('settingsPage.voiceAssistant.title')}</SettingTitle>
           </SettingHeader>
           
           <ToggleContainer>
-            <ToggleLabel>Enable Voice Assistant</ToggleLabel>
+            <ToggleLabel>{t('settingsPage.voiceAssistant.enable')}</ToggleLabel>
             <ToggleSwitch>
               <input 
                 type="checkbox" 
@@ -251,7 +260,7 @@ const Settings = () => {
             <SettingIcon>
               <FaVolumeUp />
             </SettingIcon>
-            <SettingTitle>Volume</SettingTitle>
+            <SettingTitle>{t('settingsPage.volume.title')}</SettingTitle>
           </SettingHeader>
           
           <VolumeContainer>
@@ -275,19 +284,19 @@ const Settings = () => {
             <SettingIcon>
               <FaLanguage />
             </SettingIcon>
-            <SettingTitle>Language</SettingTitle>
+            <SettingTitle>{t('settingsPage.language.title')}</SettingTitle>
           </SettingHeader>
           
           <LanguageContainer>
-            <ToggleLabel>Select Voice Assistant Language</ToggleLabel>
+            <ToggleLabel>{t('settingsPage.language.selectVoice')}</ToggleLabel>
             <LanguageOptions>
               {languages.map((language) => (
                 <LanguageOption
-                  key={language}
-                  selected={selectedLanguage === language}
-                  onClick={() => setSelectedLanguage(language)}
+                  key={language.key}
+                  selected={selectedLanguage === language.label}
+                  onClick={() => setSelectedLanguage(language.label)}
                 >
-                  {language}
+                  {language.label}
                 </LanguageOption>
               ))}
             </LanguageOptions>

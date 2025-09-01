@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { FaCamera, FaInfoCircle } from "react-icons/fa";
 import FloatingCurrency from "../components/FloatingCurrency";
 import axios from "axios";
+import { useTranslation } from 'react-i18next';
 
 const API_BASE_URL = "http://127.0.0.1:5000";
 
@@ -269,6 +270,7 @@ const Scan = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const { t } = useTranslation();
 
   const detectCurrency = async (base64Image) => {
     try {
@@ -290,7 +292,7 @@ const Scan = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file");
+      setError(t('scanPage.selectImage'));
       return;
     }
 
@@ -303,7 +305,7 @@ const Scan = () => {
       const response = await detectCurrency(base64Image);
       setResult(response);
     } catch (error) {
-      setError(error.message || "Failed to detect currency");
+      setError(error.message || t('scanPage.failedDetect'));
     } finally {
       setIsScanning(false);
     }
@@ -319,7 +321,7 @@ const Scan = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        Scan Currency
+        {t('scanPage.title')}
       </Title>
 
       <ScanWrapper>
@@ -332,24 +334,24 @@ const Scan = () => {
             <InstructionIcon>
               <FaInfoCircle />
             </InstructionIcon>
-            <InstructionTitle>How to Scan</InstructionTitle>
+            <InstructionTitle>{t('scanPage.instructions.title')}</InstructionTitle>
           </InstructionHeader>
 
           <InstructionsList>
             <InstructionItem>
-              Place the currency note on a flat, well-lit surface.
+              {t('scanPage.instructions.step1')}
             </InstructionItem>
             <InstructionItem>
-              Hold your phone steady about 15-20 cm above the note.
+              {t('scanPage.instructions.step2')}
             </InstructionItem>
             <InstructionItem>
-              Make sure the entire note is visible within the frame.
+              {t('scanPage.instructions.step3')}
             </InstructionItem>
             <InstructionItem>
-              Press the scan button and wait for the result.
+              {t('scanPage.instructions.step4')}
             </InstructionItem>
             <InstructionItem>
-              The app will announce the detected currency denomination.
+              {t('scanPage.instructions.step5')}
             </InstructionItem>
           </InstructionsList>
         </InstructionsCard>
@@ -385,7 +387,7 @@ const Scan = () => {
               style={{ display: "none" }}
             />
             <ScanText>
-              {isScanning ? "Scanning..." : "Ready to scan currency"}
+              {isScanning ? t('scanPage.scanning') : t('scanPage.ready')}
             </ScanText>
 
             <ScanButton
@@ -394,14 +396,14 @@ const Scan = () => {
               onClick={handleScan}
               disabled={isScanning}
             >
-              <FaCamera /> {isScanning ? "Scanning..." : "Start Scan"}
+              <FaCamera /> {isScanning ? t('scanPage.scanning') : t('scanPage.startScan')}
             </ScanButton>
           </ScanOverlay>
         </ScanFrame>
       </ScanWrapper>
       {result && (
         <div>
-          Detected: {result.currency} {result.denomination}
+          {t('scanPage.detected', { currency: result.currency, denomination: result.denomination })}
         </div>
       )}
       {error && <div style={{ color: "#ff6b6b" }}>{error}</div>}
