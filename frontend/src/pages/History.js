@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { FaRupeeSign, FaClock, FaCalendarAlt } from 'react-icons/fa';
 import FloatingCurrency from '../components/FloatingCurrency';
+import { useTranslation } from 'react-i18next';
 
 const HistoryContainer = styled.div`
   min-height: 100vh;
@@ -142,6 +143,8 @@ const mockHistoryData = [
 ];
 
 const History = () => {
+  const { t } = useTranslation();
+
   return (
     <HistoryContainer>
       {/* Floating currency background elements with medium density */}
@@ -152,7 +155,7 @@ const History = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        Scan History
+        {t('history.title')}
       </Title>
       
       <HistoryList>
@@ -185,7 +188,7 @@ const History = () => {
             </HistoryCard>
           ))
         ) : (
-          <EmptyMessage>No scan history available yet.</EmptyMessage>
+          <EmptyMessage>{t('history.empty')}</EmptyMessage>
         )}
       </HistoryList>
     </HistoryContainer>
