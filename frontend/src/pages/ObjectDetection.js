@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import { FaCamera, FaInfoCircle, FaUpload, FaEye, FaTrash } from "react-icons/fa";
+import { FaCamera, FaInfoCircle, FaEye, FaTrash, FaStop } from "react-icons/fa";
 import FloatingCurrency from "../components/FloatingCurrency";
 import { detectObjects } from "../services/detectionService";
 
@@ -96,9 +96,8 @@ const InstructionItem = styled.li`
   }
 `;
 
-const UploadFrame = styled(motion.div)`
+const DetectionFrame = styled(motion.div)`
   width: 100%;
-  max-width: 600px;
   aspect-ratio: 4/3;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 20px;
@@ -106,27 +105,210 @@ const UploadFrame = styled(motion.div)`
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(255, 255, 255, 0.2);
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: scanShine 5s infinite linear;
+  }
+
+  @keyframes scanShine {
+    0% {
+      transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+  }
+`;
+
+const DetectionCorner = styled.div`
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: #00c6ff;
+  border-style: solid;
+  border-width: 0;
+
+  &.top-left {
+    top: 20px;
+    left: 20px;
+    border-top-width: 3px;
+    border-left-width: 3px;
+  }
+
+  &.top-right {
+    top: 20px;
+    right: 20px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+  }
+
+  &.bottom-left {
+    bottom: 20px;
+    left: 20px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+  }
+
+  &.bottom-right {
+    bottom: 20px;
+    right: 20px;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+  }
+`;
+
+const DetectionAnimation = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, #00c6ff, transparent);
+`;
+
+const DetectionOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: #00c6ff;
-    box-shadow: 0 15px 35px rgba(0, 198, 255, 0.3);
-  }
+  background: rgba(0, 0, 0, 0.5);
 `;
 
-const UploadText = styled.p`
+const DetectionText = styled.p`
   font-size: 1.2rem;
   text-align: center;
   margin-bottom: 1.5rem;
   color: rgba(255, 255, 255, 0.9);
 `;
 
-const UploadButton = styled(motion.button)`
+const ModeToggle = styled.div`
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 5px;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+`;
+
+const ModeButton = styled(motion.button)`
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: ${props => props.active ? 
+    'linear-gradient(to right, #00c6ff, #0072ff)' : 
+    'transparent'};
+  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.7)'};
+  
+  &:hover {
+    color: white;
+    background: ${props => props.active ? 
+      'linear-gradient(to right, #00c6ff, #0072ff)' : 
+      'rgba(255, 255, 255, 0.1)'};
+  }
+`;
+
+const WebcamContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+`;
+
+const WebcamVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const WebcamControls = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+`;
+
+const CaptureButton = styled(motion.button)`
+  background: linear-gradient(to right, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.5);
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 15px 30px rgba(255, 107, 107, 0.6);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  svg {
+    font-size: 2rem;
+  }
+`;
+
+const StopButton = styled(motion.button)`
+  background: linear-gradient(to right, #6c757d, #495057);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 10px 25px rgba(108, 117, 125, 0.5);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(108, 117, 125, 0.6);
+  }
+  
+  svg {
+    font-size: 1rem;
+  }
+`;
+
+const DetectionButton = styled(motion.button)`
   background: linear-gradient(to right, #00c6ff, #0072ff, #0046ff);
   color: white;
   border: none;
@@ -141,6 +323,7 @@ const UploadButton = styled(motion.button)`
   gap: 12px;
   box-shadow: 0 10px 25px rgba(0, 114, 255, 0.5);
   transition: all 0.3s ease;
+  margin-top: 2rem;
   position: relative;
   overflow: hidden;
   z-index: 1;
@@ -339,9 +522,105 @@ const ObjectDetection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Processing...');
   const [error, setError] = useState(null);
+  const [isWebcamActive, setIsWebcamActive] = useState(false);
+  const [stream, setStream] = useState(null);
+  const [webcamError, setWebcamError] = useState(null);
+  const [captureMode, setCaptureMode] = useState('webcam'); // Default to webcam
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
-  const handleImageUpload = async (file) => {
+  // Function to start webcam
+  const startWebcam = async () => {
+    try {
+      setWebcamError(null);
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'environment' // Use back camera on mobile
+        }
+      });
+      
+      setStream(mediaStream);
+      setIsWebcamActive(true);
+      setCaptureMode('webcam');
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (error) {
+      setWebcamError('Unable to access camera. Please check permissions.');
+      console.error('Error accessing webcam:', error);
+    }
+  };
+
+  // Function to stop webcam
+  const stopWebcam = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsWebcamActive(false);
+    setWebcamError(null);
+  };
+
+  // Function to capture image from webcam
+  const captureImage = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      setDetections([]);
+      setLoadingMessage('Capturing and processing image...');
+      
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      
+      // Set canvas dimensions to match video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      // Draw current video frame to canvas
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // Convert canvas to blob for file processing
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          const file = new File([blob], 'webcam-capture.jpg', { type: 'image/jpeg' });
+          await handleImageUpload(file);
+        }
+      }, 'image/jpeg', 0.8);
+      
+    } catch (error) {
+      setError(error.message || "Failed to capture and detect objects");
+      setIsLoading(false);
+    }
+  };
+
+  // Cleanup webcam on component unmount
+  useEffect(() => {
+    // Start webcam by default
+    startWebcam();
+    
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  // Handle webcam stream changes
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+      const handleImageUpload = async (file) => {
     setDetections([]);
     setError(null);
     setIsLoading(true);
@@ -393,6 +672,10 @@ const ObjectDetection = () => {
     setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+    // Restart webcam after clearing
+    if (captureMode === 'webcam' && !isWebcamActive) {
+      startWebcam();
     }
   };
 
@@ -448,7 +731,16 @@ const ObjectDetection = () => {
 
           <InstructionsList>
             <InstructionItem>
-              Upload an image containing objects you want to detect.
+              Allow camera permissions when prompted to start object detection.
+            </InstructionItem>
+            <InstructionItem>
+              Position objects clearly in front of the camera for best detection results.
+            </InstructionItem>
+            <InstructionItem>
+              Hold your device steady and ensure good lighting conditions.
+            </InstructionItem>
+            <InstructionItem>
+              Press the capture button to take a photo and detect objects.
             </InstructionItem>
             <InstructionItem>
               The AI will identify and label common objects like people, animals, vehicles, and household items.
@@ -457,58 +749,91 @@ const ObjectDetection = () => {
               Each detected object will be highlighted with a bounding box and confidence score.
             </InstructionItem>
             <InstructionItem>
-              Best results with clear, well-lit images containing recognizable objects.
-            </InstructionItem>
-            <InstructionItem>
               The model can detect 80+ different object classes from the COCO dataset.
             </InstructionItem>
           </InstructionsList>
         </InstructionsCard>
 
-        {!imageUrl ? (
-          <UploadFrame
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            onClick={handleUploadClick}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              style={{ display: "none" }}
-            />
-            <UploadText>
-              {isLoading ? loadingMessage : "Click to upload an image for object detection"}
-            </UploadText>
+        <DetectionFrame
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <DetectionCorner className="top-left" />
+          <DetectionCorner className="top-right" />
+          <DetectionCorner className="bottom-left" />
+          <DetectionCorner className="bottom-right" />
 
-            <UploadButton
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          {isLoading && (
+            <DetectionAnimation
+              initial={{ top: 0 }}
+              animate={{ top: "100%" }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
+            />
+          )}
+
+          {captureMode === 'webcam' && isWebcamActive ? (
+            <WebcamContainer>
+              <WebcamVideo
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+              />
+              <canvas
+                ref={canvasRef}
+                style={{ display: 'none' }}
+              />
+            </WebcamContainer>
+          ) : (
+            <DetectionOverlay>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment" // This enables camera on mobile
+                onChange={handleFileSelect}
+                style={{ display: "none" }}
+              />
+              <DetectionText>
+                {isLoading ? loadingMessage : "Camera not available - Click to upload an image"}
+              </DetectionText>
+
+              <DetectionButton
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleUploadClick}
+                disabled={isLoading}
+              >
+                <FaCamera /> {isLoading ? "Processing..." : "Upload Image"}
+              </DetectionButton>
+            </DetectionOverlay>
+          )}
+        </DetectionFrame>
+
+        {/* Webcam controls */}
+        {captureMode === 'webcam' && isWebcamActive && (
+          <WebcamControls>
+            <CaptureButton
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={captureImage}
               disabled={isLoading}
             >
-              <FaUpload /> {isLoading ? "Processing..." : "Upload Image"}
-            </UploadButton>
-          </UploadFrame>
-        ) : (
-          <ControlsContainer>
-            <UploadButton
+              <FaCamera />
+            </CaptureButton>
+            <StopButton
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={handleUploadClick}
-              disabled={isLoading}
+              onClick={stopWebcam}
             >
-              <FaUpload /> Upload New Image
-            </UploadButton>
-            <ClearButton
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleClear}
-            >
-              <FaTrash /> Clear All
-            </ClearButton>
-          </ControlsContainer>
+              <FaStop /> Stop Camera
+            </StopButton>
+          </WebcamControls>
         )}
 
         {/* Loading State */}
@@ -521,6 +846,11 @@ const ObjectDetection = () => {
 
         {/* Error Message */}
         {error && <ErrorMessage>{error}</ErrorMessage>}
+        {webcamError && (
+          <ErrorMessage>
+            {webcamError}
+          </ErrorMessage>
+        )}
 
         {/* Results */}
         {!isLoading && detections.length > 0 && (
@@ -532,6 +862,17 @@ const ObjectDetection = () => {
             <h3 style={{ textAlign: 'center', marginBottom: '1rem', color: '#00c6ff' }}>
               Detection Results
             </h3>
+
+            {/* Clear button for results */}
+            <ControlsContainer>
+              <ClearButton
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleClear}
+              >
+                <FaTrash /> Clear Results
+              </ClearButton>
+            </ControlsContainer>
 
             {/* Statistics */}
             <StatsContainer>
@@ -553,7 +894,7 @@ const ObjectDetection = () => {
             <ImagePreview>
               <PreviewImage
                 src={imageUrl}
-                alt={imageName || 'Uploaded image'}
+                alt={imageName || 'Captured image'}
                 className="preview-image"
                 onLoad={() => {
                   // Force re-render to calculate bounding boxes correctly
@@ -622,14 +963,6 @@ const ObjectDetection = () => {
           </ResultsContainer>
         )}
       </DetectionWrapper>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileSelect}
-        style={{ display: "none" }}
-      />
     </DetectionContainer>
   );
 };
