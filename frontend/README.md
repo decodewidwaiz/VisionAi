@@ -36,7 +36,7 @@ git clone [repository-url]
 
 2. Navigate to the project directory:
 ```bash
-cd currency-detection-app
+cd frontend 
 ```
 
 3. Install dependencies:
@@ -61,7 +61,7 @@ The app will open automatically in your default browser at `http://localhost:300
 ## Project Structure
 
 ```
-currency-detection-app/
+frontend/
 ├── public/
 │   ├── index.html
 │   └── robots.txt
