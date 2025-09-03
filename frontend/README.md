@@ -90,4 +90,4 @@ currency-detection-app/
 
 ## Support
 
-For support, email seronsenapati@gmail.com or create an issue in the GitHub repository.
+For support, email medecodewidwaiz@gmail.com or create an issue in the GitHub repository.
