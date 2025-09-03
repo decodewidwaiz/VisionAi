@@ -5,7 +5,7 @@ import { FaCamera, FaInfoCircle, FaStop } from "react-icons/fa";
 import FloatingCurrency from "../components/FloatingCurrency";
 import axios from "axios";
 
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
 // Utility function to convert file to base64
 const fileToBase64 = (file) => {
@@ -629,6 +629,7 @@ const Scan = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleScan}
                 disabled={isScanning}
+                aria-label="Start Currency Scan"
               >
                 <FaCamera /> {isScanning ? "Scanning..." : "Start Scan"}
               </ScanButton>
@@ -644,6 +645,7 @@ const Scan = () => {
               whileTap={{ scale: 0.9 }}
               onClick={captureImage}
               disabled={isScanning}
+              aria-label="Capture Photo"
             >
               <FaCamera />
             </CaptureButton>

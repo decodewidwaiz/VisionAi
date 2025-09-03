@@ -9,6 +9,7 @@ import ObjectDetection from './pages/ObjectDetection';
 import Navbar from './components/Navbar';
 import CustomCursor from './components/CustomCursor';
 import CursorTrail from './components/CursorTrail';
+import VoiceAssistantProvider from './components/VoiceAssistantProvider';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -37,12 +38,12 @@ const GlobalStyle = createGlobalStyle`
 
 const AppLayout = () => {
   return (
-    <>
+    <VoiceAssistantProvider>
       <Navbar />
       <div id="content">
         <Outlet />
       </div>
-    </>
+    </VoiceAssistantProvider>
   );
 };
 
