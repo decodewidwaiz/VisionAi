@@ -1,4 +1,4 @@
-#  VisionAI – Currency Detection for Visually Impaired  
+#  VisionAI – Currency and object Detection for Visually Impaired  
 
 > _“See value. Hear value. Know value — instantly.”_  
 
